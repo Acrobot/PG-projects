@@ -76,7 +76,7 @@ public:
         _numbers[index] = number;
     }
 
-    void print(ostream& out = cout) {
+    ostream& print(ostream& out = cout) {
         cout << "|------------------------------|" << endl;
         cout << "Vector address: " << this << endl;
         int dimension = this->getDimension();
@@ -88,6 +88,11 @@ public:
         }
 
         cout << "|------------------------------|" << endl;
+        return out;
+    }
+
+    friend ostream& operator<<(ostream& out, VectorNd &right) {
+        return right.print(out);
     }
 };
 
@@ -95,6 +100,11 @@ class VectorOfVectors {
     VectorNd *vectors;
     int size;
 public:
+    VectorOfVectors() {
+        this->vectors = new VectorNd[0];
+        this->size = 0;
+    }
+
     VectorOfVectors(const VectorNd vectors[], int size) {
         this->vectors = new VectorNd[size];
         this->size = size;
@@ -104,11 +114,71 @@ public:
         }
     }
 
-    friend istream& operator>>(istream& in, VectorOfVectors vov) {
+    VectorOfVectors(const VectorOfVectors& vectorOfVectors) {
+        this->vectors = new VectorNd[vectorOfVectors.size];
+        this->size = vectorOfVectors.size;
 
+        for (int i = 0; i < size; ++i) {
+            this->vectors[i] = vectorOfVectors.vectors[i];
+        }
+    }
+
+    VectorOfVectors operator=(const VectorOfVectors& vectorOfVectors) {
+        VectorOfVectors copy(vectorOfVectors);
+
+        std::swap(vectors, copy.vectors);
+        std::swap(size, copy.size);
+
+        return *this;
+    }
+
+    void add_vector(VectorNd &vector) {
+        VectorNd *new_vectors = new VectorNd[this->size + 1];
+
+        for (int i = 0; i < this->size; ++i) {
+            new_vectors[i] = this->vectors[i];
+        }
+
+        new_vectors[this->size] = vector;
+
+        delete[] this->vectors;
+
+        this->size += 1;
+        this->vectors = new_vectors;
+    }
+
+    friend istream& operator>>(istream& in, VectorOfVectors& vov) {
+        int size = 0;
+        in >> size;
+
+        double numbers[size];
+
+        for (int i = 0; i < size; ++i) {
+            in >> numbers[i];
+        }
+
+        VectorNd *new_vector = new VectorNd(numbers, size);
+        vov.add_vector(*new_vector);
+
+        return in;
+    }
+
+    friend ostream& operator<<(ostream& out, VectorOfVectors& vov) {
+        out << "Elements: " << vov.size << endl;
+        for (int i = 0; i < vov.size; ++i) {
+            out << "[" << i << "] = " << vov.vectors[i] << endl;
+        }
     }
 };
 
 int main() {
+    VectorOfVectors vectorOfVectors;
+
+    cout << "Please type in the vector size and then its components" << endl;
+    cin >> vectorOfVectors;
+    cout << vectorOfVectors;
+
+    VectorOfVectors vectorOfVectors2 = vectorOfVectors;
+    cout << vectorOfVectors2;
     return 0;
 }
