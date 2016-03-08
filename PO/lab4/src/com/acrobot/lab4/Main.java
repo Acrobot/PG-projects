@@ -3,7 +3,7 @@ package com.acrobot.lab4;
 public class Main {
 
     public static void main(String[] args) throws InvalidShapeException {
-	    Shape triangle = ShapeFactory.getShape("triangle", 3, 5, 6);
+	Shape triangle = ShapeFactory.getShape("triangle", 3, 5, 6);
         System.out.println(triangle);
 
         Shape rectangle = ShapeFactory.getShape("rectangle", 1, 2, 3);
